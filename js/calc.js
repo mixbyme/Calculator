@@ -1,41 +1,3 @@
-// * 아래와 같이 가정한다.
-// -------------------------------------------------------------------------------------------
-// 숫자의 정밀도를 double 형을 쓰지 않도록 조정하고자 한다.
-// Number.MAX_SAFE_INTEGER 값은 총 16자리 숫자이기 때문에
-// 문제에서 요구하는 10자리 정수와 5자리 소수점 이하 자리를 커버한다.
-// 원래 수보다. 100000 값을 곱하여 저장하고 연산한 후 결과를 소수점 자리로 변환하는게 합당하다.
-// 이 경우 부동소수점 연산 오차에서도 자유로울 수 있다.
-// 다만 문제는 단일 숫자 자체가 소수점 아래 자리를 포함하는 경우 곱하기 연산에서 max 값을 넘치게 되기 때문에
-// 정말 제대로 해결하기 위해서는 big number 알고리즘을 이용하여 사칙연산 및
-// 공학용 operators를 해결해야하나 현재 문제에서 요구하는 범위를 벗어난다고 판단하여
-// 위와 같이 정밀도 기준을 변경하는 것만으로 대체하도록 한다.
-
-// 맨 처음에 입력되는 음수 값은 infix/postfix stack에 0값을 초기값으로 넣어주어 operator 로써 동작하도록 한다. 
-// 공학용에서 사용할 음수값은 별도의 +/- 키가 추가되어야 하며 이는 기능 확장 시 고려한다.
-// 예상으로는 Number Wrapping Class 에 음수 값을 별도로 저장하고 Operator함수를 연산할 때 참조하도록 하면 된다.
-
-// 화면상에 프린트하기 위한 모듈 분리한다.
-
-// 설계와 관련해서는 다음과 같이 나눈다.
-// 첫째 View 와 Controller 로 분리한다.
-// html 상의 컨트롤 모델(html)과 레이아웃과 LookAndFill(CSS) 분리한다.
-// 모델의 control(operation)을 정의하고 임시 데이터를 관리하는 것은 Controller가 진행하도록 만든다.
-// OOP의 경우 추후에 다른 곳에서 사용하는 공통 부분을 분리하는게 맞으나,
-// 지금 상황에서는 간단한 프로토타이핑 형태의 구조이기 때문에 Controller가 Util 성 함수들도 포함하도록 처리한다.
-
-// 공학용과 일반형의 기능 스위칭은 view 의 레이아웃 변경만으로 충분하기 때문에
-// 공학용과 일반영 그리고 이후에 추가될 다른 모드에 대한 레이아웃 함수만 adapter 패턴과 유사하게 수정한다.
-// DOM은 레퍼런스가 존재하지 않기 때문에 매번 다른 장소에서는 Element를 새로 만들게 된다.
-// 따라서 View에서 레이아웃을 구성하도록 하는 부분은 stateless하게 설계하고 singleton pattern 으로 구현한다.
-
-// SPA 내에 여러개의 계산기가 들어갈 수 있어야 하기 때문에
-// 실제 Operation들은 bind 된 DOM에 따라 별도의 isntance로 만들어져야한다.
-// 따라서 construct가 있는 function type object로 만들고 각각의 namespace 안에서만 유요하도록 구현한다.
-
-// 계산기를 DOM binding 하는 과정을 install이라고 정의한다.
-
-// 풀이 >>>>>>>
-
 // Singleton Class
 var CalcUIUtils = {
     MakeNode : function (nodeName, id, cls, value) {
@@ -96,7 +58,7 @@ var CalcAppNormalUI = {
     // 요구사항 및 일반 계산기 UI 생성 함수 레이아웃 배치는 CSS 에서 처리하도록 하고 기본 배치만 정한다.
     MakeCalcUI : function (node, app, config, numbers, operators) {
         'use strict';
-        
+
         var i, calcPanel, title, titleElm, stackNode, subPanel1, subPanel2, resultNode, numlen, operlen;
         // 단독으로 돌 때도 있고 다른 곳에 서브 프레임에서 타이틀이 불필요할 수 있기 때문에 옵션처리
         title = true;
@@ -115,7 +77,7 @@ var CalcAppNormalUI = {
         stackNode = CalcUIUtils.MakeText(null, "calc_text calc_stack");
         app.setStackNode(stackNode);
         calcPanel.appendChild(stackNode);
-        
+
         // 숫자와 operations 패널을 나눈 이유는 요구사항 기본 디자인에서 기본적인 구획은 가지고 있어야
         // 레이아웃 처리가 쉬울 것으로 판단하여 나눈다.
 
@@ -174,7 +136,7 @@ var CalcAppUIProperty = {
 var CalcNumber = function(numberobj) {
     if(this._CalcNumber === null) {
         throw "Please use new CalcApp instance.";
-    } 
+    }
     this._CalcNumber(numberobj);
 };
 
@@ -207,7 +169,7 @@ CalcNumber.prototype.avaliable = function() {
 CalcNumber.prototype.insertNumber = function(numberString) {
     // number가 양수이며 1의 자리 숫자만 들어온다고 가장하고 있다.
     if (CalcNumber.isNumber(numberString)) {
-        if (this.pointIndex == null) { // 소수점이 없는경우 
+        if (this.pointIndex == null) { // 소수점이 없는경우
             if (this.number.length < 10) { // 단일 입력은 정수는 최대 10자리 수만 가능하도록 한다.
                 this.number += numberString;
             }
@@ -284,7 +246,7 @@ CalcNumber.prototype.toString = function () {
         integerNumber = this.getIntegerNumberStr();
         decimalNumber = this.getDecimalNumberStr();
         if (decimalNumber == null || Number(decimalNumber) == 0) {
-            return integerNumber;    
+            return integerNumber;
         } else {
             return integerNumber + "." + decimalNumber;
         }
@@ -297,7 +259,7 @@ CalcNumber.prototype.toString = function () {
 var CalcNotationArray = function() {
     if(this._CalcNotationArray == null) {
         throw "Please use new CalcNotationArray instance.";
-    } 
+    }
     this._CalcNotationArray();
 };
 
@@ -383,7 +345,7 @@ var CalcOperator = {
         var result = num1.getNumberByPrecision() * num2.getNumberByPrecision();
         var newNumberObj = new CalcNumber();
         newNumberObj.setNumberByPrecision(parseInt(result / CalcNumber.PRECISION));
-        return newNumberObj;  
+        return newNumberObj;
     },
     div : function(num1, num2) {
         //console.log("div(" + num1.toString() + ", " + num2.toString() + ")");
@@ -398,7 +360,7 @@ var CalcOperator = {
 var CalcApp = function() {
     if(this._CalcApp == null) {
         throw "Please use new CalcApp instance.";
-    } 
+    }
     this._CalcApp();
 };
 
@@ -415,7 +377,7 @@ CalcApp.prototype._CalcApp = function() {
     this.infixNotationArray = new CalcNotationArray(); // 중위 표기법 array;
     this.resultNode = null;
     this.result = "0";
-    this.stackNode = null;  
+    this.stackNode = null;
     this.lastOperator = null;
     this.lastNumber = null;
 };
@@ -430,7 +392,7 @@ CalcApp.prototype.eventDispatcher = function(e) {
 
     if(e.type == "click") {
         var target = e.target || e.srcElement;
-        ret = this.getType(target.value);    
+        ret = this.getType(target.value);
     } else if (e.type == "keydown") {
        console.log("Not Yet!");
     }
@@ -485,7 +447,7 @@ CalcApp.prototype.getType = function(data) {
 
 CalcApp.prototype.insertNumber = function(number) {
      if (this.infixNotationArray.size() > 0 && this.infixNotationArray.last()._CalcNumber && this.operator != null) {
-        this.infixNotationArray.push(this.lastOperator);   
+        this.infixNotationArray.push(this.lastOperator);
     }
     this.currentNumber.insertNumber(number);
     this.result = this.currentNumber.toString();
@@ -516,7 +478,7 @@ CalcApp.prototype.operator = function(operator) {
     } else {
         this.infixNotationArray.push(this.lastOperator);
     }
-   
+
     this.doCalc();
 };
 
@@ -631,7 +593,7 @@ CalcApp.prototype.infixToPostfix = function(infixNotationArray) {
 		    var li = operatorStack.length - 1;
 		    while(operatorStack.length != 0 && this.getPrOper(c) <= this.getPrOper(operatorStack[li])) {
 		        postfixNotationArray.push(operatorStack.pop());
-		        li = operatorStack.length - 1;		        
+		        li = operatorStack.length - 1;
 		    }
 		    operatorStack.push(c);
 		} else {
@@ -641,7 +603,7 @@ CalcApp.prototype.infixToPostfix = function(infixNotationArray) {
 
     // 남아있는 operator stack flush
 	while(operatorStack.length != 0) {
-        postfixNotationArray.push(operatorStack.pop());		        
+        postfixNotationArray.push(operatorStack.pop());
     }
     return postfixNotationArray;
 };
