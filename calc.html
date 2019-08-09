@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>계산기</title>
+        <script type="text/javascript" src="js/calc.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/calc.css"/>
+    </head>
+    <body>
+        <div class="calcground" data-id="000001"></div>
+        <script type="text/javascript">
+            var calcgrounds = document.querySelectorAll(".calcground");
+            for (var i = 0; i < calcgrounds.length; i++) {
+                IntallCalcAppAtNode(calcgrounds[i], {title:true, type:"normal"});    
+            }
+        </script>
+    </body>
+ </html>
